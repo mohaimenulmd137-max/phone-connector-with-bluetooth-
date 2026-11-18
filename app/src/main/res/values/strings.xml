@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">SutoLink</string>
+    <string name="accessibility_service_label">SutoLink রিমোট কন্ট্রোল</string>
+    <string name="accessibility_service_description">ব্লুটুথ দিয়ে সংযুক্ত অপর ফোন থেকে স্ক্রিন কন্ট্রোল ও টাচ জেসচার পাঠানোর জন্য SutoLink-এর এই সার্ভিসটি ব্যবহৃত হয়। অ্যাপ থেকে সংযোগ বন্ধ করলে এটি স্বয়ংক্রিয়ভাবে অফ হয়ে যায়।</string>
+    <string name="tile_label">SutoLink</string>
+    <string name="notification_channel_name">SutoLink সংযোগ সার্ভিস</string>
+    <string name="notification_channel_description">দুই ফোনের ব্লুটুথ লিংক ও স্ক্রিন শেয়ারিং ব্যাকগ্রাউন্ডে সচল রাখে।</string>
+</resources>

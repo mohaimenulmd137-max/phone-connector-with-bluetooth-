@@ -1,0 +1,6 @@
+{
+  "name": "SutoLink",
+  "description": "Bluetooth dual-phone screen sharing, live remote touch control, and automatic background link service.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
