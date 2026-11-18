@@ -19,17 +19,26 @@ jobs:
           distribution: temurin
           java-version: '21'
 
-      - name: Set up Android SDK & Accept Licenses
-        uses: android-actions/setup-android@v3
-
-      - name: Accept all Android SDK licenses
+      - name: Configure Android SDK & Licenses
         run: |
-          yes | sdkmanager --licenses > /dev/null || true
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          mkdir -p "$SDK_ROOT/licenses"
+          printf "\n24333f8a63b6825ea9c5514f83c2829b004d1fee" > "$SDK_ROOT/licenses/android-sdk-license"
+          printf "\n84831b9409646a918e30573bab4c9c91346d8abd" > "$SDK_ROOT/licenses/android-sdk-preview-license"
+          printf "\nd975f751698a77b662f1254ddbeed3901e976f5a" > "$SDK_ROOT/licenses/intel-android-extra-license"
+          SDKMANAGER=$(find "$SDK_ROOT" -name sdkmanager -type f 2>/dev/null | head -n 1 || true)
+          if [ -n "$SDKMANAGER" ]; then
+            echo "Found sdkmanager: $SDKMANAGER"
+            yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+            "$SDKMANAGER" --install "platforms;android-36.1" "build-tools;36.0.0" "platform-tools" || true
+          fi
 
       - name: Prepare debug keystore
         run: |
           if [ -f debug.keystore.base64 ]; then
-            base64 -d debug.keystore.base64 > debug.keystore
+            base64 -d debug.keystore.base64 > debug.keystore || rm -f debug.keystore
           fi
           if [ ! -f debug.keystore ]; then
             keytool -genkeypair -noprompt \
@@ -43,13 +52,14 @@ jobs:
               -dname "CN=Android Debug,O=Android,C=US"
           fi
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '9.3.1'
+      - name: Install Gradle 9.3.1
+        run: |
+          curl -fsSL https://services.gradle.org/distributions/gradle-9.3.1-bin.zip -o /tmp/gradle.zip
+          unzip -q /tmp/gradle.zip -d /tmp/gradle-dist
+          echo "/tmp/gradle-dist/gradle-9.3.1/bin" >> "$GITHUB_PATH"
 
       - name: Build Debug APK
-        run: gradle :app:assembleDebug --stacktrace
+        run: gradle :app:assembleDebug --no-daemon -Dorg.gradle.jvmargs="-Xmx2560m -Dfile.encoding=UTF-8" --stacktrace
 
       - name: Upload SutoLink APK
         uses: actions/upload-artifact@v4
